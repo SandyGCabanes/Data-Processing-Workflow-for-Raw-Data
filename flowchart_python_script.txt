@@ -1,0 +1,222 @@
+# Flowchart for python script
+
+### Python pipeline flowchart
+
+```
+┌───────────────────────────────────────────────┐
+│                 process(df)                   │
+│            SOTC survey cleaning               │
+└───────────────────────────────────────────────┘
+                     ▽
+┌───────────────────────────────────────────────┐
+│ Add resp_id if missing                        │
+└───────────────────────────────────────────────┘
+                     ▽
+┌───────────────────────────────────────────────┐
+│ Drop email column (anonymize)                 │
+└───────────────────────────────────────────────┘
+                     ▽
+┌───────────────────────────────────────────────────────────────┐
+│ Enforce age rules                                              │
+│ - Coerce to numeric                                            │
+│ - Out of bounds (<15 or >100) → blank                          │
+│ - If age == 0 and education contains "Secondary High School" → 18 │
+└───────────────────────────────────────────────────────────────┘
+                     ▽
+┌───────────────────────────────────────────────┐
+│ Gender blanks → "Prefer not to say"           │
+└───────────────────────────────────────────────┘
+                     ▽
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ City normalization                                                           │
+│ - If city == "None" → "Perth Australia"                                      │
+│ - Title-case if all caps                                                     │
+│ - If city blank → fill from province, else country                           │
+└──────────────────────────────────────────────────────────────────────────────┘
+                     ▽
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ Impute coordinates (if lat/lon missing)                                      │
+│ - If place mentions "Calabarzon" → city "Cavite" with coords                 │
+│ - If place mentions "Zambales"  → city "Olongapo City" with coords           │
+│ - If country "United Kingdom"  → city "London" with coords                   │
+└──────────────────────────────────────────────────────────────────────────────┘
+                     ▽
+┌────────────────────────────────────────────────────────────────────────────────┐
+│ Deduplicate                                                                    │
+│ - Delete rows with city exactly "Borongan City, Eastern Samar" or              │
+│   "Aleosan, North Cotabato"                                                    │
+│ - Sort by timestamp (or row order)                                             │
+│ - Drop duplicates by key: city, age, gender, education, industry, career_stage │
+│   keeping the last                                                             │
+└────────────────────────────────────────────────────────────────────────────────┘
+                     ▽
+┌───────────────────────────────────────────────┐
+│ Map salary → salary_shortversion              │
+└───────────────────────────────────────────────┘
+                     ▽
+┌───────────────────────────────────────────────┐
+│ Derive age group (PIDS AAP + "<19")           │
+└───────────────────────────────────────────────┘
+                     ▽
+┌──────────────────────────────────────────────────────────────────────────────────────┐
+│ Clean career stage                                                                   │
+│ - Shorten "Student/ New grad/ Career break ..." → "Student/ New grad/ Career Break"  │
+│ - Allow: Student/ New grad/ Career Break, Career shifter, Professional, Freelance    │
+│ - Else → "Other"                                                                     │
+└──────────────────────────────────────────────────────────────────────────────────────┘
+                     ▽
+┌───────────────────────────────────────────────┐
+│ inphils_notinphils flag from country          │
+└───────────────────────────────────────────────┘
+                     ▽
+                 ┌───────────────┐
+                 │ Decision ◇    │
+                 │ careerstg_cln │
+                 │ == "Student/  │───────────────┐
+                 │ New grad/     │               │
+                 │ Career Break"?│               │
+                 └───────────────┘               │
+                   │ Yes                      No │
+                   │                             │
+                   ▽                             ▽
+┌────────────────────────────────────┐     ┌────────────────────────────────────┐
+│ Blank working-section fields:      │     │ Keep working-section fields        │
+│ employer_type, typework, sitework, │     │ as-is                              │
+│ salary, salary_short, data_role,   │     └────────────────────────────────────┘
+│ restofrole, team_size, cloud/non   │
+└────────────────────────────────────┘
+                     ▽
+┌───────────────────────────────────────────────┐
+│ Recode employer_type (Local, Multinational,   │
+│ Foreign-Other, Self-employed, Unspecified)    │
+└───────────────────────────────────────────────┘
+                     ▽
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ Success method (multi-select) → separate table                               │
+│ - Split by commas → rows                                                     │
+│ - Drop NA/None-like entries                                                  │
+│ - Normalize: Headhunter, Online – Other, Jobstreet (typos), Facebook,        │
+│   Discord/Slack, Social Media - Unspecified, My network – people I know      │
+│ - Distinct rows                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+                     ▽
+┌───────────────────────────────────────────────┐
+│ If salary present and typework blank →        │
+│ typework = "Unspecified"                      │
+└───────────────────────────────────────────────┘
+                     ▽
+┌───────────────────────────────────────────────┐
+│ Recode sitework (Not working→blank, Hybrid,   │
+│ 100% onsite for "Field", Mostly WFH for "online") │
+└───────────────────────────────────────────────┘
+                     ▽
+┌────────────────────────────────────────────────────────────────────────────────┐
+│ Data role (main) standardization                                               │
+│ - Admin capitalization; Map variant titles to Data Analyst / Data Engineering  │
+│ - Null-out NA/N/A/student/Unemployed/etc.                                      │
+└────────────────────────────────────────────────────────────────────────────────┘
+                     ▽
+┌────────────────────────────────────────────────────────────────────────────────┐
+│ Rest of role (multi-select) → separate table                                   │
+│ - Split by commas → rows                                                       │
+│ - Drop overly long/vague entries                                               │
+│ - Remove entries that duplicate main role                                      │
+│ - Distinct rows                                                                │
+└────────────────────────────────────────────────────────────────────────────────┘
+                     ▽
+┌───────────────────────────────────────────────┐
+│ Assign role_group from main data_role         │
+└───────────────────────────────────────────────┘
+                     ▽
+┌───────────────────────────────────────────────┐
+│ If data_role is blank → team_size = blank     │
+└───────────────────────────────────────────────┘
+                     ▽
+┌───────────────────────────────────────────────┐
+│ Standardize cloudplat & noncloudplat          │
+│ (e.g., SSMS; MS SQL Server variants)          │
+└───────────────────────────────────────────────┘
+                     ▽
+┌────────────────────────────────────────────────┐
+│ General tools (multi-select) → separate table  │
+│ - Split by commas → rows                       │
+│ - Distinct rows                                │
+└────────────────────────────────────────────────┘
+                     ▽
+┌─────────────────────────────────────────────────────────┐
+│ Regular tools used (multi-select) → separate table      │
+│ - Split by commas → rows                                │
+│ - Normalize (None→blank; Excel; Tableau)                │
+│ - Drop blanks; distinct                                 │
+└─────────────────────────────────────────────────────────┘
+                     ▽
+┌─────────────────────────────────────────────────────────┐
+│ AI tools (multi-select) → separate table                │
+│ - Split by commas → rows                                │
+│ - Normalize "No, I do not use AI currently" → "None"    │
+│ - Keep real tools; drop blanks; distinct                │
+└─────────────────────────────────────────────────────────┘
+                     ▽
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ Hosted notebooks (multi-select) → separate table                             │
+│ - Split by commas → rows                                                     │
+│ - Normalize (OneNote; Amazon Sagemaker Studio; "offline notebook"→blank;     │
+│   many None-like → "None")                                                   │
+│ - Drop blanks; distinct                                                      │
+└──────────────────────────────────────────────────────────────────────────────┘
+                     ▽
+┌───────────────────────────────────────────────┐
+│ Hardware standardization (laptop and desktop, │
+│ mobile phone; N/A→blank)                      │
+└───────────────────────────────────────────────┘
+                     ▽
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ Digital learning (multi-select) → separate table                             │
+│ - Replace "/" with ","                                                       │
+│ - Split by commas → rows                                                     │
+│ - Normalize (Youtube; Great Learning; "Not currently..." → "None")           │
+│ - Drop blanks; distinct                                                      │
+└──────────────────────────────────────────────────────────────────────────────┘
+                     ▽
+┌───────────────────────────────────────────────┐
+│ Special needs (multi-select) → separate table │
+│ - Split by commas → rows                      │
+└───────────────────────────────────────────────┘
+                     ▽
+┌───────────────────────────────────────────────┐
+│ Volunteer (multi-select) → separate table     │
+│ - Split by commas → rows                      │
+│ - Remove None/NA-like entries; distinct       │
+└───────────────────────────────────────────────┘
+                     ▽
+┌───────────────────────────────────────────────┐
+│ Comms: remove None-like suggestions           │
+└───────────────────────────────────────────────┘
+                     ▽
+┌────────────────────────────────────────────────────────────────────────────────┐
+│ DE tools – Ingestion (multi-select) → separate table                           │
+│ - Split by commas → rows                                                       │
+│ - Normalize (Python, Custom scripts, Google sheets, Excel, ADF, AWS Glue)      │
+│ - If respondent has other tools, drop "Don’t know"/"None"                      │
+│ - Drop blanks; distinct                                                        │
+└────────────────────────────────────────────────────────────────────────────────┘
+                     ▽
+┌─────────────────────────────────────────────────────────────┐
+│ DE tools – Transformation (multi-select) → separate table   │
+│ - Split by commas → rows                                    │
+│ - Normalize (Xstl→Xslt; Power BI→Power Query)               │
+│ - Distinct                                                  │
+└─────────────────────────────────────────────────────────────┘
+                     ▽
+┌───────────────────────────────────────────────┐
+│ Facebook groups (multi-select) → table        │
+│ - Split by commas → rows; distinct            │
+└───────────────────────────────────────────────┘
+                     ▽
+┌────────────────────────────────────────────────────────────────────────────────┐
+│ Return outputs dict:                                                           │
+│ - main, success_method, rest_of_role, general_tools, regular_tools, ai_tools,  │
+│   hosted_notebooks, digital_learning, special_needs, volunteer, ingestion,     │
+│   transformation, fb_groups                                                    │
+└────────────────────────────────────────────────────────────────────────────────┘
+```
