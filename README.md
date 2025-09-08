@@ -32,5 +32,5 @@ The processing pipeline generates a comprehensive set of structured data outputs
 - **Geocoded CSV:** A new CSV file with standardized and geocoded location information.
 - **Interactive HTML Map:** An HTML map visualizing the geocoded locations, providing a clear geographic overview.
 
-SGC. 
-Beyond surveys. Data-driven decisions.
+> SGC. 
+> Beyond surveys. Data-driven decisions.
