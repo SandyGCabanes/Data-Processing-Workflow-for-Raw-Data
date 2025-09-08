@@ -3,10 +3,10 @@
 ## This repository contains the pipeline for cleaning, standardizing, and enhancing survey data, including geographic information.
 
 ## Objective
-##### Transform Raw Data: convert raw survey responses into a **clean, structured, and enriched dataset.**
-##### Prepare for Analysis: process ensures the data is ready for in-depth analysis and reporting.
-##### Enhance Location Data: improve the accuracy of geographical information by adding precise coordinates.
-##### Build Reliable Foundation: outcome is a solid, trustworthy dataset for generating insights.
+- Transform Raw Data: convert raw survey responses into a **clean, structured, and enriched dataset.**
+- Prepare for Analysis: process ensures the data is ready for in-depth analysis and reporting.
+- Enhance Location Data: improve the accuracy of geographical information by adding precise coordinates.
+- Build Reliable Foundation: outcome is a solid, trustworthy dataset for generating insights.
 
 ## Tracking Survey Automation
 
