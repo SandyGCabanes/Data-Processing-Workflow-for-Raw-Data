@@ -1,0 +1,62 @@
+┌───────────────────────────────┐
+│        Raw Survey Data        │
+│ (headers = full question text)│
+└───────────────┬───────────────┘
+                │
+                ▼
+┌──────────────────────────────────────────┐
+│ 1. Apply COLUMN_MAP                      │
+│    (short names → exact raw column names)│
+└─────────────────┬────────────────────────┘
+                  │
+                  ▼
+┌──────────────────────────────────────────┐
+│ 2. Global Normalization                  │
+│    - Remove accents/diacritics           │
+│    - Trim spaces                         │
+│    - Standardize text casing             │
+└─────────────────┬────────────────────────┘
+                  │
+                  ▼
+┌──────────────────────────────────────────┐
+│ 3. Standardize Values via Mapping CSVs   │
+│    - Exact match replacements            │
+│    - Regex replacements                  │
+│    - Drop/keep lists                     │
+└─────────────────┬────────────────────────┘
+                  │
+                  ▼
+┌──────────────────────────────────────────┐
+│ 4. Handle Single-Select Questions        │
+│    - Clean & keep in main table          │
+└─────────────────┬────────────────────────┘
+                  │
+                  ▼
+┌──────────────────────────────────────────┐
+│ 5. Handle Multi-Select Questions         │
+│    - Split answers into separate rows    │
+│    - One table per question              │
+└─────────────────┬────────────────────────┘
+                  │
+                  ▼
+┌──────────────────────────────────────────┐
+│ 6. Extract Location Data (dimloc)        │
+│    - City, Work City, Country            │
+│    - Save for geocoding module           │
+└─────────────────┬────────────────────────┘
+                  │
+                  ▼
+┌──────────────────────────────────────────┐
+│ 7. Add Derived Fields                    │
+│    - Age group                           │
+│    - Salary short version                │
+│    - In-Philippines flag                 │
+└─────────────────┬────────────────────────┘
+                  │
+                  ▼
+┌──────────────────────────────────────────┐
+│ 8. Final Outputs                         │
+│    - Main cleaned table                  │
+│    - dimloc table                        │
+│    - One table per multi-select question │
+└──────────────────────────────────────────┘
