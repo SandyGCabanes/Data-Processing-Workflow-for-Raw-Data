@@ -1,0 +1,49 @@
+        ┌───────────────────────────────┐
+        │         process()             │
+        │  (Main Orchestrator)          │
+        └────────────┬──────────────────┘
+                     │
+                     ▼
+           ┌─────────────────────┐
+           │  COLUMN_MAP         │
+           │ (short → raw names) │
+           └─────────┬───────────┘
+                     │
+                     ▼
+           ┌─────────────────────┐
+           │ global_normalize()  │
+           │ - Remove accents    │
+           │ - Trim spaces       │
+           │ - Standardize text  │
+           └─────────┬───────────┘
+                     │
+                     │                                      
+                     ▼                                      
+        ┌──────────────────────────────┐        ┌──────────────────────────────┐
+        │ Apply Mappings               │        │ extract_dimloc()             │
+        │ - Single-select columns      │  ────▸ │ - City, Work City, Country   │
+        │ - Use exact/regex/drop/keep  │        │ - Save dimloc table          │
+        └────────────┬─────────────────┘        └──────────────────────────────┘
+                     │                                       
+                     ▼                                    │
+        ┌──────────────────────────────┐                  │
+        │ explode_multiselect()        │                  │
+        │ - split_multi() helper       │                  │
+        │ - One table per question     │                  │
+        │ - Apply mappings if present  │                  │
+        └────────────┬─────────────────┘                  │
+                     │                                    │
+                     ▼                                    │
+        ┌──────────────────────────────┐                  │
+        │ Derived Fields               │                  │
+        │ - Age group                  │                  │
+        │ - In-Philippines flag        │                  │
+        └────────────┬─────────────────┘                  │
+                     │                                    │
+                     ▼                                    │
+        ┌──────────────────────────────┐                  │
+        │ Final Outputs                │◂─────────────────┘
+        │ - main (all respondents)     │
+        │ - dimloc                     │
+        │ - exploded multi-selects     │
+        └──────────────────────────────┘
