@@ -33,4 +33,4 @@ The processing pipeline generates a comprehensive set of structured data outputs
 - **Interactive HTML Map:** An HTML map visualizing the geocoded locations, providing a clear geographic overview.
 
 > SGC. 
-> Beyond surveys. Data-driven decisions.
+> Beyond surveys. Data-Powered decisions.
