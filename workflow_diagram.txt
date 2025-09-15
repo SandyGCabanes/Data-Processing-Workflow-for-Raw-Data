@@ -1,0 +1,49 @@
+# Workflow Diagram
+
+             ┌───────────────────────────┐
+             │          rawdf            │
+             └─────────────┬─────────────┘
+                           │
+                           ▼
+               Global Cleaning (inline)
+               - Normalize text
+               - Trim & collapse spaces
+               - Title-case city/country
+                           │
+                           ▼
+                     Apply Lookups
+              (from {column}_lookup.csv)
+                           │
+                           ▼
+      ┌────────┬───────────────┬───────────────┐
+      │        │               │               │
+      ▼        ▼               ▼               ▼
+ df_single   df_loc     Multi-response DFs   df_freetext
+(single-     (location   (explode + lookup   (free-text cols
+response      processing) per column)         processed
+columns)                                      outside Python)
+      │        │               │               │
+      │        │               │               │
+      │        │               │               │
+      │        │               │               │
+      │        │               │               │
+      │        ▼               │               │
+      │ Clean location names   │               │
+      │ + Apply city lookup    │               │
+      │ + Define lat/long      │               │
+      │ + Generate HTML map    │               │
+      │        │               │               │
+      │        │               │               │
+      │        │               │               │
+      ▼        ▼               ▼               ▼
+
+ ┌────────────────────────────────────────────────┐
+ │Inner join on resp_id:                          │
+ │- df_single, df_loc, multi-response dfs,        │
+ │- df_freetext (after external processing)       │
+ └───────────────────────┬────────────────────────┘
+                         │
+                         ▼
+                  ┌────────────────────┐
+				  │  df_model (final)  │
+                  └────────────────────┘
