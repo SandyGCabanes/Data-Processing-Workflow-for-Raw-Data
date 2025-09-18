@@ -1,7 +1,7 @@
 # Workflow Diagram
 
              ┌───────────────────────────┐
-             │          rawdf            │
+             │ df_raw (from csv_raw.csv) │
              └─────────────┬─────────────┘
                            │
                            ▼
@@ -9,6 +9,7 @@
                - Normalize text
                - Trim & collapse spaces
                - Title-case city/country
+			   - Replace 'Other' with ''
                            │
                            ▼
                      Apply Lookups
@@ -37,8 +38,8 @@ columns)                                      outside Python)
       │        │               │               │
       ▼        ▼               ▼               ▼
 
- ┌────────────────────────────────────────────────┐
- │Inner join on resp_id:                          │
+ ┌────────  duckdb for data model  ───────────────┐
+ │Left join on resp_id:                           │
  │- df_single, df_loc, multi-response dfs,        │
  │- df_freetext (after external processing)       │
  └───────────────────────┬────────────────────────┘
