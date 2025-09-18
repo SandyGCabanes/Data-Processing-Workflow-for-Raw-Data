@@ -1,4 +1,4 @@
-# Data Processing Workflow for Survey Data
+# Data Processing Workflow for Survey Data (python, duckdb)
 
 ## This repository contains the pipeline for cleaning, standardizing, and enhancing survey data, including geographic information.
 
