@@ -1,50 +1,62 @@
 # Workflow Diagram
-
+                   ┌────────────┐
+                   │    Start   │
+        		   │ Import pkgs│
+                   └─────┬──────┘
+                         │
+                         ▼				  
              ┌───────────────────────────┐
-             │ df_raw (from csv_raw.csv) │
+             │ Create output directories │
+			 │ Load raw data, rename cols│
              └─────────────┬─────────────┘
                            │
-                           ▼
-               Global Cleaning (inline)
-               - Normalize text
-               - Trim & collapse spaces
-               - Title-case city/country
-			   - Replace 'Other' with ''
+             ┌───────────────────────────┐
+             │  Global Cleaning          │
+             │- Normalize text           │
+             │- Trim & collapse spaces   │
+             │- Title-case city/country/ │
+			 │   workcity/datarole       │
+             │ - Replace 'Other' with '' │
+             └─────────────┬─────────────┘	     
                            │
-                           ▼
-                     Apply Lookups
-              (from {column}_lookup.csv)
-                           │
-                           ▼
-      ┌────────┬───────────────┬───────────────┐
-      │        │               │               │
-      ▼        ▼               ▼               ▼
- df_single   df_loc     Multi-response DFs   df_freetext
-(single-     (location   (explode + lookup   (free-text cols
-response      processing) per column)         processed
-columns)                                      outside Python)
-      │        │               │               │
-      │        │               │               │
-      │        │               │               │
-      │        │               │               │
-      │        │               │               │
-      │        ▼               │               │
-      │ Clean location names   │               │
-      │ + Apply city lookup    │               │
-      │ + Define lat/long      │               │
-      │ + Generate HTML map    │               │
-      │        │               │               │
-      │        │               │               │
-      │        │               │               │
-      ▼        ▼               ▼               ▼
-
- ┌────────  duckdb for data model  ───────────────┐
- │Left join on resp_id:                           │
- │- df_single, df_loc, multi-response dfs,        │
- │- df_freetext (after external processing)       │
- └───────────────────────┬────────────────────────┘
-                         │
-                         ▼
-                  ┌────────────────────┐
-				  │  df_model (final)  │
-                  └────────────────────┘
+                           ▼			 
+	         ┌───────────────────────────┐
+             │ Add resp_id               │
+			 │ Save df_raw to csv, pickle│──────► ─────────────────────────────────► ─┐
+             └─────────────┬─────────────┘                                            │
+                           │                                                          │
+                           ▼                                                          │
+             ┌───────────────────────────┐        ┌───────────────────────────┐       │
+             │ Extract df_single_no_grps │  ────► │   Check unique values     │       │
+             │ Apply lookups (csv files) │        │  Revise lookup csv files  │       │
+			 │                           │  ◄───- │       * Loop back         │       │   
+             └─────────────┬─────────────┘        └───────────────────────────┘	      │		 
+                           │                                                          │
+                           │                    ┌───────────────┬───────────────┐ ◄───┘
+                           │                    │               │               │
+                           ▼                    ▼               ▼               ▼
+                      Add age_grp              df_loc     Multi-response    df_freetext
+                      and datarole_grp         (geopy        dfs explode    (free-text cols
+                           │                   folium)       per column)        │
+                           ▼                  lat/ long         │               │ 
+                         Create               html map          │            external ntbk
+                     df_single_with_grps      city lookup       │            wordcloud
+                           │                    │               │               │					 
+                           │                    │               │               │
+                           ▼                    ▼               ▼               ▼
+                         ┌────────---------------------------─────────────────────┐
+                         │   Each df stored as csv file ready for data model      │
+                         │   csv_outputs_dir (left join on resp_id)               │
+                         │   and as pickle files in outputs_dir                   │
+                         └───────────────────────┬────────────────────────────────┘
+                                                 ▼  
+                         ┌────────-------────-----───-----───-----────────────────┐
+                         │   Each df stored as a table in duckdb:                 │
+                         │  - df_single, df_loc, multi-response dfs,              │
+                         │  - df_freetext (after external processing)             │
+                         └───────────────────────┬────────────────-───────────────┘
+                                                 │
+                                                 ▼
+                                           ┌────────────┐
+                                           │     End    │
+                                           └────────────┘
