@@ -14,6 +14,8 @@
 
 - The cleaned and validated data can easily be imported into any business intelligence software like Tableau, Power BI, Looker Studio even Excel charts. [Tableau report here.](https://public.tableau.com/app/profile/sandy.g.cabanes/viz/survey0309/Home)
 
+- The actual pickle files, csv files and duckdb file are withheld for privacy reasons.  However, I generated a synthetic dataset using R and python in other repositories.
+  
 ## Background: Automation of Data Pipeline
 > This project addresses the need for automating data cleaning and data validation of annual survey data in python. After the initial survey in 2024, we are now launching this as an annual survey.  Raw data contains inconsistencies, missing values, and variations in free-text entries. This Python workflow automates the rigorous cleaning, standardization, and transformation of this data. A key enhancement includes a multi-geocoder validation process to accurately identify and map respondent locations, which will provide a snapshot of respondent locations. This uses a modular design, ensuring consistency across various data manipulation steps.
 
