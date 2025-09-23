@@ -44,13 +44,13 @@
                            │                    │               │               │					 
                            │                    │               │               │
                            ▼                    ▼               ▼               ▼
-                         ┌────────---------------------------─────────────────────┐
+                         ┌────────────────────────────────────────────────────────┐
                          │   Each df stored as csv file ready for data model      │
                          │   csv_outputs_dir (left join on resp_id)               │
                          │   and as pickle files in outputs_dir                   │
                          └───────────────────────┬────────────────────────────────┘
                                                  ▼  
-                         ┌────────-------────-----───-----───-----────────────────┐
+                         ┌────────────────────────────────────────────────────────┐
                          │   Each df stored as a table in duckdb:                 │
                          │  - df_single, df_loc, multi-response dfs,              │
                          │  - df_freetext (after external processing)             │
