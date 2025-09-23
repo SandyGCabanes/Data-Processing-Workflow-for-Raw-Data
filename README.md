@@ -31,7 +31,7 @@ The processing pipeline generates a comprehensive set of structured data outputs
 	- Digital learning platforms
 	- Data engineering tools for ingestion, transformation, orchestration, etc.
 
-- **Geocoded CSV:** A new CSV file with standardized and geocoded location information.
+- **Geocoded CSV:** A new CSV file with standardized and geocoded location information.  [python code for map](https://github.com/SandyGCabanes/2024-Survey-Report-on-the-State-of-the-Community-DEP/blob/main/map3_geopy_folium.ipynb)
 - **Interactive HTML Map:** An HTML map visualizing the geocoded locations, providing a clear geographic overview.
 
 > SGC. 
