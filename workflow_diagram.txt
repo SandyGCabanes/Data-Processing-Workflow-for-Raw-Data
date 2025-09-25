@@ -42,7 +42,7 @@
                          Create               html map          │            external ntbk
                      df_single_with_grps      city lookup       │            wordcloud
                            │                    │               │               │					 
-                           │                  external ntbk     │               │               │
+                           │                  external ntbk     │               │               
                            ▼                    ▼               ▼               ▼
                          ┌────────---------------------------─────────────────────┐
                          │   Each df stored as csv file ready for data model      │
