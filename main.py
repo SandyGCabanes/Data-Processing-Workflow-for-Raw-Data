@@ -91,24 +91,6 @@ df_raw.rename(columns=rename_map, inplace=True)
 # 3a. First Global Cleaning (Inline)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Global Cleaning Functions
-# Transform string values
-def normalize_text(val):
-    if pd.isna(val):
-        return ""
-    val = unicodedata.normalize("NFKC", str(val))
-    val = val.strip()
-    val = " ".join(val.split())
-    return val
-
-# Use normalize_text function above and title format for "city", "country", "workcity", "datarole", "industry"
-def clean_dataframe(df):
-    for col in df.select_dtypes(include="object").columns:
-        df[col] = df[col].apply(normalize_text)
-        if col in ["city", "country", "workcity", "datarole", "industry"]:
-            df[col] = df[col].str.title()
-    return df
-
 
 # Apply Global Cleaning functions
 for col in df_raw.select_dtypes(include="object").columns:
