@@ -103,8 +103,8 @@ for col in df_raw.select_dtypes(include="object").columns:
     df_raw[col] = df_raw[col].apply(lambda v: "" if v.startswith("Other") else v)
 
 # Replace age of 0 with min age, and cap at 95
-min_age = df_raw["age"].min()
-df_raw["age"] = df_raw["age"].replace(0, min_age)
+valid_min_age = df_raw.loc[df_raw["age"] > 0, "age"].min()
+df_raw["age"] = df_raw["age"].replace(0, valid_min_age).clip(upper=95)
 max_age = df_raw["age"].max()
 df_raw["age"] = df_raw["age"].apply(lambda x: max_age if x > 95 else x)
 
